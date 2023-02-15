@@ -5,6 +5,8 @@ It can also collect all the requests (XHR, fetch, websockets, etc) issued during
   
 It requires node and [DOMDig](https://github.com/fcavallarin/domdig).
 
+## Download
+Latest release can be downloaded [here](https://github.com/fcavallarin/burp-dom-scanner/releases/latest/download/burp-dom-scanner.jar)
 ## Some screenshots
 
 ![Burp DOM Scanner Screenshots](https://htcrawl.org/img/burp-dom-scanner-all.png)
