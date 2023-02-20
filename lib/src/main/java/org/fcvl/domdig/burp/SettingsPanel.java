@@ -1,42 +1,40 @@
 package org.fcvl.domdig.burp;
 
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
-import java.awt.GridBagLayout;
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import org.json.JSONObject;
 
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-
-import java.awt.FlowLayout;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.ActionEvent;
-import javax.swing.JCheckBox;
-import java.awt.GridLayout;
-import javax.swing.JTextArea;
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.SystemColor;
-import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
-import java.awt.Font;
-
 public class SettingsPanel extends JPanel {
+	private DomdigUI parent;
 	private JTextField nodePathTextField;
 	private JTextField domdigPathTextField;
 	private TableEditor cookiesEditor;
@@ -102,7 +100,7 @@ public class SettingsPanel extends JPanel {
 	}
 
 	private void alertError(String message) {
-		JOptionPane.showMessageDialog(SettingsPanel.this, message, "Error", JOptionPane.ERROR_MESSAGE);
+		parent.showAlert(message, true);
 	}
 	
 	public String getJson() {
@@ -193,7 +191,8 @@ public class SettingsPanel extends JPanel {
 		return null;
 	}
 
-	public SettingsPanel() {
+	public SettingsPanel(DomdigUI parent) {
+		this.parent = parent;
 		setLayout(new BorderLayout(0, 0));
 		
 		mainGridScrollPane = new JScrollPane();

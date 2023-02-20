@@ -1,6 +1,7 @@
 package org.fcvl.domdig.burp;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 
@@ -62,7 +63,7 @@ public class DomdigUI extends JPanel {
 			DomdigEvents events = new DomdigEvents(){
 				@Override
 				public void onError(String message) {
-					JOptionPane.showMessageDialog(DomdigUI.this, message);	
+					showAlert(message, true);
 				}
 				@Override
 				public void onStatusChange(String message) {
@@ -87,7 +88,7 @@ public class DomdigUI extends JPanel {
 					settingsPanel.setEnabledComponents(true);
 					targetUrlTextField.setEditable(true);
 					if(!error) {
-						JOptionPane.showMessageDialog(DomdigUI.this, "Scan finished with no errors");
+						showAlert("Scan finished with no errors", false);
 						// @TOOD switch to results Tab
 					}
 				}
@@ -104,8 +105,10 @@ public class DomdigUI extends JPanel {
 	}
 	
 	public void stopScan() {
-		executor.requestStopScan();
-		btnToggleScan.setEnabled(false);
+		if(executor != null) {
+			executor.requestStopScan();
+			btnToggleScan.setEnabled(false);
+		}
 	}
 
 	public void saveState() {
@@ -124,6 +127,15 @@ public class DomdigUI extends JPanel {
 		PersistedObject prjData = burpApi.persistence().extensionData();
 		targetUrlTextField.setText(prjData.getString("target_url"));
 		//settingsPanel.checkScannerIsConfigured();
+	}
+
+	public void showAlert(String message, boolean isError) {
+		Component parent = burpApi != null ? burpApi.userInterface().swingUtils().suiteFrame() : DomdigUI.this;
+		if(isError) {
+			JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(parent, message);
+		}
 	}
 
 	public DomdigUI(MontoyaApi burpApi) {
@@ -227,7 +239,7 @@ public class DomdigUI extends JPanel {
 		vulnerabilitiesPanel = new VulnerabilitiesPanel(); 
 		vulnerabilitiesTab.add(vulnerabilitiesPanel);
 
-		settingsPanel = new SettingsPanel();
+		settingsPanel = new SettingsPanel(this);
 		scanTab.add(settingsPanel);
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			   public void run() {
