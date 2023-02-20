@@ -5,8 +5,16 @@ It can also collect all the requests (XHR, fetch, websockets, etc) issued during
   
 It requires node and [DOMDig](https://github.com/fcavallarin/domdig).
 
-## Download
-Latest release can be downloaded [here](https://github.com/fcavallarin/burp-dom-scanner/releases/latest/download/burp-dom-scanner.jar)
-## Some screenshots
+## DOMDig
+DOMDig is a DOM XSS scanner that runs inside the Chromium web browser and it can scan single page applications (SPA) recursively.
+Unlike other scanners, DOMDig can crawl any webapplication (including gmail) by keeping track of DOM modifications and XHR/fetch/websocket requests and it can simulate a real user interaction by firing events. During this process, XSS payloads are put into input fields and their execution is tracked in order to find injection points and the related URL modifications.
 
+## Usage and Details
+Details about usage, performed checks and reported vulnerabilities, can be found at [DOMDig's page](https://github.com/fcavallarin/domdig)
+
+# Download
+Latest release can be downloaded [here](https://github.com/fcavallarin/burp-dom-scanner/releases/latest/download/burp-dom-scanner.jar)
+
+# Some screenshots
 ![Burp DOM Scanner Screenshots](https://htcrawl.org/img/burp-dom-scanner-all.png)
+

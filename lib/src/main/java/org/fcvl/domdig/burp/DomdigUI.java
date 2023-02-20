@@ -99,11 +99,15 @@ public class DomdigUI extends JPanel {
 				executor.runXSSScanner(events);
 			}
 		} else {
-			executor.requestStopScan();
-			btnToggleScan.setEnabled(false);
+			stopScan();
 		}
 	}
 	
+	public void stopScan() {
+		executor.requestStopScan();
+		btnToggleScan.setEnabled(false);
+	}
+
 	public void saveState() {
 		if(burpApi == null)return;
 		burpApi.persistence().preferences().setString("jsonConfig", settingsPanel.getJson());
