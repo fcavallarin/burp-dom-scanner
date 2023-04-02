@@ -2,10 +2,14 @@ package org.fcvl.domdig.burp;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HexFormat;
 
 import org.json.JSONObject;
+
 
 public class DomdigRequest {
 	public int id;
@@ -19,6 +23,7 @@ public class DomdigRequest {
 	public String triggerElement = "";
 	public String createdAt;
 	private URL parsedURL;
+	public String hash;
 
 	public DomdigRequest(int id,  String type, String method, String url, String headers, String data, String trigger, String createdAt) {
 		super();
@@ -30,6 +35,7 @@ public class DomdigRequest {
 		this.data = data;
 		this.trigger = trigger.equals("") ? null : trigger;
 		this.createdAt = createdAt;
+		this.hash = calculateHash();
 		try {
 			this.parsedURL = new URL(this.url);
 		} catch (MalformedURLException e1) {
@@ -96,5 +102,18 @@ public class DomdigRequest {
 		} catch (ParseException e) {
 			return null;
 		}
+	}
+
+	private String calculateHash() {
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			return "";
+		}
+		String m = type + method + url + data;
+		md.update(m.getBytes());
+		return HexFormat.of().formatHex(md.digest());
 	}
 }

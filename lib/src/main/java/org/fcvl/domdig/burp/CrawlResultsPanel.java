@@ -7,13 +7,17 @@ import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -31,13 +35,17 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 
 import burp.api.montoya.http.message.HttpHeader;
-import  burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.RowFilter.Entry;
 
 import java.awt.FlowLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JSeparator;
 
 
 public class CrawlResultsPanel extends JPanel {
@@ -49,6 +57,9 @@ public class CrawlResultsPanel extends JPanel {
 	private JLabel requestTriggerLabel;
 	private JTextField elementTextField;
 	HttpRequestEditor reqEditor;
+	private TableRowSorter<RequestsTableModel> requestsSorter;
+	private JCheckBox hideDupsCheckBox;
+	private HashMap<String, DomdigRequest> loadedRequestHashes;
 
 	private HttpRequest domdigRequestToBurpRequest(DomdigRequest req) {
 		if(burpApi == null) return null;
@@ -112,7 +123,7 @@ public class CrawlResultsPanel extends JPanel {
 		if(list != null) {
 			for(DomdigRequest u: list) {
 				requestsModel.addRow(u);
-
+				loadedRequestHashes.put(u.hash, u);
 			}
 		}
 	}
@@ -132,6 +143,7 @@ public class CrawlResultsPanel extends JPanel {
 	public void reset() {
 		flushTable();
 		flushRequestEditor();
+		loadedRequestHashes = new HashMap<>();
 	}
 
 	private void loadRequestTextArea() {
@@ -168,8 +180,11 @@ public class CrawlResultsPanel extends JPanel {
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		add(splitPane);
 
+		JPanel requestsPanel = new JPanel();
 		JScrollPane requestsScrollPane = new JScrollPane();
-		splitPane.setLeftComponent(requestsScrollPane);
+		splitPane.setLeftComponent(requestsPanel);
+		requestsPanel.setLayout(new BorderLayout(0, 0));
+		requestsPanel.add(requestsScrollPane);
 
 		requestsModel = new RequestsTableModel();
 		requestsTable = new JTable(requestsModel);
@@ -181,15 +196,26 @@ public class CrawlResultsPanel extends JPanel {
 				}
 			}
 		});
+		requestsSorter = new TableRowSorter<RequestsTableModel>(requestsModel);
+		requestsTable.setRowSorter(requestsSorter);
+		RowFilter<RequestsTableModel, Integer> rf = new RowFilter<>(){
+			@Override
+			public boolean include(Entry entry) {
+				if(!hideDupsCheckBox.isSelected()) {
+					return true;
+				}
+				DomdigRequest req = ((RequestsTableModel)entry.getModel()).getRow((int) entry.getIdentifier());
+				return loadedRequestHashes.get(req.hash) == req;
+			}
+		};
+		requestsSorter.setRowFilter(rf);
 		JPopupMenu popupMenu =  new JPopupMenu("a");
 		JMenuItem m1 = new JMenuItem("Send to Repeater");
 		m1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
 			{
 				DomdigRequest req = requestsModel.getRow(requestsTable.getSelectedRow());
-				System.out.println(requestsTable.getSelectedRow());
 				sendToRepeater(req);
-
 			}
 		});
 		JMenuItem m2 = new JMenuItem("Send to Intruder");
@@ -242,10 +268,27 @@ public class CrawlResultsPanel extends JPanel {
 			}
 		});
 
-		setColWidths(requestsTable, new int[]{20, 30, 200, 30, 500, 250, 150});
-		setTableSorter(requestsTable);
+		setColWidths(requestsTable, new int[]{20, 30, 200, 30, 450, 250, 150});
+		//setTableSorter(requestsTable);
 
 		requestsScrollPane.setViewportView(requestsTable);
+
+		JPanel requestsOptionsPanel = new JPanel();
+		FlowLayout flowLayout = (FlowLayout) requestsOptionsPanel.getLayout();
+		flowLayout.setAlignment(FlowLayout.RIGHT);
+		requestsPanel.add(requestsOptionsPanel, BorderLayout.NORTH);
+
+		hideDupsCheckBox = new JCheckBox("Hide duplicates");
+		hideDupsCheckBox.setSelected(true);
+		hideDupsCheckBox.addItemListener(new ItemListener() {
+		    public void itemStateChanged(ItemEvent e) {
+		        requestsModel.fireTableDataChanged();
+		    }
+		});
+		requestsOptionsPanel.add(hideDupsCheckBox);
+
+		JSeparator optionsSeparator = new JSeparator();
+		requestsOptionsPanel.add(optionsSeparator);
 
 		JPanel requestDetailsPanel = new JPanel();
 		splitPane.setRightComponent(requestDetailsPanel);
@@ -272,17 +315,18 @@ public class CrawlResultsPanel extends JPanel {
 			requestTextArea = new JTextArea();
 			scrollPane.setViewportView(requestTextArea);
 		}
-
+		loadedRequestHashes = new HashMap<>();
 	}
 
 }
 
 
 
-class RequestsTableModel extends AbstractTableModel {
+class RequestsTableModel extends DefaultTableModel {
 	private String[] columnNames = {"#", "Type", "Host", "Method", "URL", "Trigger", "Time"};
 	private Class<?> colClasses[] = {Integer.class, String.class, String.class, String.class, String.class, String.class, String.class};
 	public ArrayList<DomdigRequest> data = new ArrayList<>();
+	//private JCheckBox hideDups;
 
 	public int getColumnCount() {
 		return columnNames.length;
@@ -353,5 +397,9 @@ class RequestsTableModel extends AbstractTableModel {
 		this.data = new ArrayList<>();
 		fireTableDataChanged();
 	}
+
+//	public void setFilters(JCheckBox hideDups) {
+//		this.hideDups = hideDups;
+//	}
 }
 
