@@ -138,6 +138,5 @@ public class TableEditor extends JPanel{
 		for(int i = 0; i < columnWidths.length; i++) {
 			keyValueTable.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);	
 		}
-	
 	}
 }

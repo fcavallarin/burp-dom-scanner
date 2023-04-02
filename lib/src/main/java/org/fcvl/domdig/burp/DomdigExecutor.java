@@ -27,10 +27,11 @@ public class DomdigExecutor {
 	public boolean checkTemplateInjection;
 	public boolean checkStored;
 	public boolean singleBrowser;
+	public boolean headlessMode;
 
 	public DomdigExecutor(String nodePath, String domdigPath, String targetUrl, String cookies, String credentials, int timeout, String proxy,
 			String headers, String loginSequence, String payloadsFile, String modes, String excludeRegex,
-			String localStorage, boolean checkTemplateInjection, boolean checkStored, boolean singleBrowser) {
+			String localStorage, boolean checkTemplateInjection, boolean checkStored, boolean singleBrowser, boolean headlessMode) {
 		super();
 		this.nodePath = nodePath;
 		this.domdigPath = domdigPath;
@@ -49,6 +50,7 @@ public class DomdigExecutor {
 		this.checkTemplateInjection = checkTemplateInjection;
 		this.checkStored = checkStored;
 		this.singleBrowser = singleBrowser;
+		this.headlessMode = headlessMode;
 		//System.out.println(this.dbFilePath);
 	}
 
@@ -79,7 +81,9 @@ public class DomdigExecutor {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add(this.nodePath);
 		list.add(this.domdigPath);
-		list.add("-l");
+		if(!headlessMode) {
+			list.add("-l");
+		}
 		list.add("-m");
 		list.add(modes);
 		list.add("-d");

@@ -53,8 +53,9 @@ public class SettingsPanel extends JPanel {
 	private JTextField proxyTextField;
 	private JCheckBox proxyCheckBox;
 	private JScrollPane mainGridScrollPane;
-	private JCheckBox singleBrowserCheckBox;
 	private JTextField timeoutTextField;
+	private JCheckBox headlessModeCheckBox;
+	private JCheckBox singleBrowserCheckBox;
 	
 	public DomdigExecutor getExecutor(String targetUrl) {
 		String credentials = httpAuthUserTextField.getText() + ":" + httpAuthPassTextField.getText();
@@ -96,7 +97,8 @@ public class SettingsPanel extends JPanel {
 		return new DomdigExecutor(nodeExe.getAbsolutePath(), domdigExe.getAbsolutePath(), 
 				targetUrl, cookiesEditor.toJson(), credentials, timeout,
 				proxy, kvEditHeaders.toJson(),  loginSequenceTextArea.getText(), payloadFileTextField.getText(),
-				String.join(",", modes), ignoreRegexTextField.getText(), kvEditLocalstorage.toJson(), tplInjCheckBox.isSelected(), storedXSSCheckBox.isSelected(), !singleBrowserCheckBox.isSelected());
+				String.join(",", modes), ignoreRegexTextField.getText(), kvEditLocalstorage.toJson(), tplInjCheckBox.isSelected(),
+				storedXSSCheckBox.isSelected(), !singleBrowserCheckBox.isSelected(), headlessModeCheckBox.isSelected());
 	}
 
 	private void alertError(String message) {
@@ -122,6 +124,7 @@ public class SettingsPanel extends JPanel {
 		json.put("kvEditHeaders", kvEditHeaders.toJson());
 		json.put("kvEditLocalstorage", kvEditLocalstorage.toJson());
 		json.put("singleBrowserCheckBox", singleBrowserCheckBox.isSelected());
+		json.put("headlessModeCheckBox", headlessModeCheckBox.isSelected());
 		json.put("timeoutTextField", timeoutTextField.getText());
 		return json.toString();
 		
@@ -146,6 +149,7 @@ public class SettingsPanel extends JPanel {
 		storedXSSCheckBox.setSelected(json.getBoolean("storedXSSCheckBox"));
 		proxyCheckBox.setSelected(json.getBoolean("proxyCheckBox"));
 		singleBrowserCheckBox.setSelected(json.getBoolean("singleBrowserCheckBox"));
+		headlessModeCheckBox.setSelected(json.getBoolean("headlessModeCheckBox"));
 		timeoutTextField.setText(json.getString("timeoutTextField"));
 	}
 
@@ -167,6 +171,7 @@ public class SettingsPanel extends JPanel {
 		storedXSSCheckBox.setEnabled(enabled);
 		proxyCheckBox.setEnabled(enabled);
 		singleBrowserCheckBox.setEnabled(enabled);
+		headlessModeCheckBox.setEnabled(enabled);
 	}
 	
 	public Boolean checkScannerIsConfigured() {
@@ -229,7 +234,7 @@ public class SettingsPanel extends JPanel {
 		gbl_settingsPanel_1.columnWidths = new int[]{0, 0, 0, 0};
 		gbl_settingsPanel_1.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_settingsPanel_1.columnWeights = new double[]{1.0, 1.0, 0.0, Double.MIN_VALUE};
-		gbl_settingsPanel_1.rowWeights = new double[]{1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_settingsPanel_1.rowWeights = new double[]{1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
 		settingsPanel_1.setLayout(gbl_settingsPanel_1);
 		
 		JLabel lblNewLabel_5 = new JLabel("Modes");
@@ -295,16 +300,23 @@ public class SettingsPanel extends JPanel {
 		gbc_lblNewLabel_11.gridx = 0;
 		gbc_lblNewLabel_11.gridy = 2;
 		settingsPanel_1.add(lblNewLabel_11, gbc_lblNewLabel_11);
-		
+
+		JPanel panel_7 = new JPanel();
+		FlowLayout flowLayout_7 = (FlowLayout) panel_7.getLayout();
+		flowLayout_7.setAlignment(FlowLayout.LEFT);
+		GridBagConstraints gbc_panel_7 = new GridBagConstraints();
+		gbc_panel_7.insets = new Insets(0, 0, 5, 5);
+		gbc_panel_7.fill = GridBagConstraints.BOTH;
+		gbc_panel_7.gridx = 1;
+		gbc_panel_7.gridy = 2;
+		settingsPanel_1.add(panel_7, gbc_panel_7);
+
 		singleBrowserCheckBox = new JCheckBox("Use a new browser for every new URL");
-		singleBrowserCheckBox.setSelected(true);
-		GridBagConstraints gbc_singleBrowserCheckBox = new GridBagConstraints();
-		gbc_singleBrowserCheckBox.anchor = GridBagConstraints.WEST;
-		gbc_singleBrowserCheckBox.insets = new Insets(5, 5, 5, 5);
-		gbc_singleBrowserCheckBox.gridx = 1;
-		gbc_singleBrowserCheckBox.gridy = 2;
-		settingsPanel_1.add(singleBrowserCheckBox, gbc_singleBrowserCheckBox);
+		panel_7.add(singleBrowserCheckBox);
 		
+		headlessModeCheckBox = new JCheckBox("Headless mode");
+		panel_7.add(headlessModeCheckBox);
+
 		JLabel lblNewLabel_10 = new JLabel("Proxy");
 		lblNewLabel_10.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 		GridBagConstraints gbc_lblNewLabel_10 = new GridBagConstraints();

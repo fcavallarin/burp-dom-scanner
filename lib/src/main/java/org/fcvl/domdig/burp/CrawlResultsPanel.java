@@ -118,12 +118,13 @@ public class CrawlResultsPanel extends JPanel {
 		sorter.setSortKeys(sortKeys);
 	}
 
-
 	public void loadRequestsList(ArrayList<DomdigRequest> list) {
 		if(list != null) {
 			for(DomdigRequest u: list) {
 				requestsModel.addRow(u);
-				loadedRequestHashes.put(u.hash, u);
+				if(!loadedRequestHashes.containsKey(u.hash)) {
+					loadedRequestHashes.put(u.hash, u);
+				}
 			}
 		}
 	}
@@ -144,6 +145,8 @@ public class CrawlResultsPanel extends JPanel {
 		flushTable();
 		flushRequestEditor();
 		loadedRequestHashes = new HashMap<>();
+		requestTriggerLabel.setText("");
+		elementTextField.setVisible(false);
 	}
 
 	private void loadRequestTextArea() {

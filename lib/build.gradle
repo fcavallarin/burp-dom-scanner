@@ -26,7 +26,8 @@ dependencies {
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.guava:guava:31.1-jre'
 
-    implementation 'net.portswigger.burp.extensions:montoya-api:+'
+    //implementation 'net.portswigger.burp.extensions:montoya-api:+'
+    implementation 'net.portswigger.burp.extensions:montoya-api:2023.3'
     
     // sql 'org.xerial:sqlite-jdbc:3.40.0.0'
     implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.34.0'
