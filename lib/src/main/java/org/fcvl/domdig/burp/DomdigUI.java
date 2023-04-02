@@ -10,6 +10,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -47,7 +49,14 @@ public class DomdigUI extends JPanel {
 		//System.out.println(settingsPanel.getJson());
 		saveState();
 		if(executor == null || !executor.isRunning()) {
-			executor = settingsPanel.getExecutor(targetUrlTextField.getText());
+			URL url;
+			try {
+				url = new URL(targetUrlTextField.getText());
+			} catch (MalformedURLException e) {
+				showAlert("Malformed URL", true);
+				return;
+			}
+			executor = settingsPanel.getExecutor(url.toString());
 			if(executor == null) {
 				return;
 			}

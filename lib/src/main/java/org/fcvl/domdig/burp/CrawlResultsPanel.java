@@ -32,6 +32,8 @@ import javax.swing.JMenuItem;
 
 import burp.api.montoya.http.message.HttpHeader;
 import  burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.ui.editor.HttpRequestEditor;
+
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
@@ -46,6 +48,7 @@ public class CrawlResultsPanel extends JPanel {
 	private JTextArea requestTextArea;
 	private JLabel requestTriggerLabel;
 	private JTextField elementTextField;
+	HttpRequestEditor reqEditor;
 
 	private HttpRequest domdigRequestToBurpRequest(DomdigRequest req) {
 		if(burpApi == null) return null;
@@ -118,33 +121,45 @@ public class CrawlResultsPanel extends JPanel {
 		requestsModel.flush();
 	}
 
-	
+	private void flushRequestEditor() {
+		if(burpApi != null) {
+			reqEditor.setRequest(null);
+		} else {
+			requestTextArea.setText("");
+		}
+	}
+
 	public void reset() {
 		flushTable();
-		requestTextArea.setText("");
+		flushRequestEditor();
 	}
 
 	private void loadRequestTextArea() {
 		if(requestsTable.getSelectedRow() > -1) {
 			DomdigRequest r = ((RequestsTableModel)requestsTable.getModel()).getRow(requestsTable.getSelectedRow());
 			try {
-				requestTextArea.setText(r.getRaw());
-				requestTextArea.setCaretPosition(0);
-				if(r.trigger != null) {
-					requestTriggerLabel.setText("Request triggered by " + r.triggerEvent + "() on ");
-					elementTextField.setText(r.triggerElement);
-					elementTextField.setVisible(true);
+				String rawReq = r.getRaw();
+				if(burpApi != null) {
+					reqEditor.setRequest(domdigRequestToBurpRequest(r));
 				} else {
-					requestTriggerLabel.setText("");
-					elementTextField.setVisible(false);
+					requestTextArea.setText(rawReq);
+					requestTextArea.setCaretPosition(0);
 				}
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (MalformedURLException e1) {
+				flushRequestEditor();
+			}
+
+			if(r.trigger != null) {
+				requestTriggerLabel.setText("Request triggered by " + r.triggerEvent + "() on ");
+				elementTextField.setText(r.triggerElement);
+				elementTextField.setVisible(true);
+			} else {
+				requestTriggerLabel.setText("");
+				elementTextField.setVisible(false);
 			}
 		}
 	}
-	
+
 	public CrawlResultsPanel(MontoyaApi burpApi) {
 		this.burpApi = burpApi;
 		setLayout(new BorderLayout(0, 0));
@@ -236,12 +251,6 @@ public class CrawlResultsPanel extends JPanel {
 		splitPane.setRightComponent(requestDetailsPanel);
 		requestDetailsPanel.setLayout(new BorderLayout(0, 0));
 
-		JScrollPane scrollPane = new JScrollPane();
-		requestDetailsPanel.add(scrollPane, BorderLayout.CENTER);
-
-		requestTextArea = new JTextArea();
-		scrollPane.setViewportView(requestTextArea);
-
 		JPanel panel_2 = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panel_2.getLayout();
 		flowLayout.setAlignment(FlowLayout.LEFT);
@@ -253,6 +262,16 @@ public class CrawlResultsPanel extends JPanel {
 		elementTextField = new JTextField();
 		panel_2.add(elementTextField);
 		elementTextField.setColumns(70);
+
+		if(burpApi != null) {
+			reqEditor = burpApi.userInterface().createHttpRequestEditor();
+			requestDetailsPanel.add(reqEditor.uiComponent(), BorderLayout.CENTER);
+		} else {
+			JScrollPane scrollPane = new JScrollPane();
+			requestDetailsPanel.add(scrollPane, BorderLayout.CENTER);
+			requestTextArea = new JTextArea();
+			scrollPane.setViewportView(requestTextArea);
+		}
 
 	}
 

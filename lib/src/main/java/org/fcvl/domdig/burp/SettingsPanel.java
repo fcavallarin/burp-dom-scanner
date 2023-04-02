@@ -150,7 +150,6 @@ public class SettingsPanel extends JPanel {
 	}
 
 	public void setEnabledComponents(Boolean enabled) {
-		System.out.println("enable");
 		loginSequenceTextArea.setEnabled(enabled);
 		httpAuthUserTextField.setEnabled(enabled);
 		nodePathTextField.setEnabled(enabled);
