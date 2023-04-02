@@ -54,7 +54,7 @@ public class DomdigDB {
 			ResultSet rs = statement.executeQuery();
 			
 			 while(rs.next()){
-				 reqList.add(new DomdigRequest(rs.getInt("id"), rs.getString("type"), rs.getString("method"), rs.getString("url"), rs.getString("headers"), rs.getString("data"), rs.getString("trigger")));
+				 reqList.add(new DomdigRequest(rs.getInt("id"), rs.getString("type"), rs.getString("method"), rs.getString("url"), rs.getString("headers"), rs.getString("data"), rs.getString("trigger"), rs.getString("created_at")));
 			 }
 			 return reqList;
 		} catch(SQLException e){

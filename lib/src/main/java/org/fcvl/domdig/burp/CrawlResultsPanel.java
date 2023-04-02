@@ -242,7 +242,7 @@ public class CrawlResultsPanel extends JPanel {
 			}
 		});
 
-		setColWidths(requestsTable, new int[]{50, 50, 70, 300, 200, 200});
+		setColWidths(requestsTable, new int[]{20, 30, 200, 30, 500, 250, 150});
 		setTableSorter(requestsTable);
 
 		requestsScrollPane.setViewportView(requestsTable);
@@ -251,16 +251,16 @@ public class CrawlResultsPanel extends JPanel {
 		splitPane.setRightComponent(requestDetailsPanel);
 		requestDetailsPanel.setLayout(new BorderLayout(0, 0));
 
-		JPanel panel_2 = new JPanel();
-		FlowLayout flowLayout = (FlowLayout) panel_2.getLayout();
-		flowLayout.setAlignment(FlowLayout.LEFT);
-		requestDetailsPanel.add(panel_2, BorderLayout.NORTH);
+		JPanel triggerPanel = new JPanel();
+		FlowLayout fl_triggerPanel = (FlowLayout) triggerPanel.getLayout();
+		fl_triggerPanel.setAlignment(FlowLayout.LEFT);
+		requestDetailsPanel.add(triggerPanel, BorderLayout.NORTH);
 
 		requestTriggerLabel = new JLabel("");
-		panel_2.add(requestTriggerLabel);
+		triggerPanel.add(requestTriggerLabel);
 		
 		elementTextField = new JTextField();
-		panel_2.add(elementTextField);
+		triggerPanel.add(elementTextField);
 		elementTextField.setColumns(70);
 
 		if(burpApi != null) {
@@ -280,8 +280,8 @@ public class CrawlResultsPanel extends JPanel {
 
 
 class RequestsTableModel extends AbstractTableModel {
-	private String[] columnNames = {"#", "Type", "Method", "URL", "Data", "Trigger"};
-	private Class<?> colClasses[] = {Integer.class, String.class, String.class, String.class, String.class, String.class};
+	private String[] columnNames = {"#", "Type", "Host", "Method", "URL", "Trigger", "Time"};
+	private Class<?> colClasses[] = {Integer.class, String.class, String.class, String.class, String.class, String.class, String.class};
 	public ArrayList<DomdigRequest> data = new ArrayList<>();
 
 	public int getColumnCount() {
@@ -303,14 +303,15 @@ class RequestsTableModel extends AbstractTableModel {
 		switch(col){
 			case 0: return req.id;
 			case 1: return req.type;
-			case 2: return req.method;
-			case 3: return req.url;
-			case 4: return req.data;
+			case 2: return req.getProtocol() + "://" + req.getHost();
+			case 3: return req.method;
+			case 4: return req.getRelativeURL();
 			case 5: 
 				if(req.trigger != null) {
 					return "$(" + req.triggerElement + ")." + req.triggerEvent + "()";
 				} 
 				return "";
+			case 6: return req.getTime();
 		}
 		return null;
 	}

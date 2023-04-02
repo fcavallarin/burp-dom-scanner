@@ -2,6 +2,8 @@ package org.fcvl.domdig.burp;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import org.json.JSONObject;
 
@@ -15,8 +17,10 @@ public class DomdigRequest {
 	public String trigger;
 	public String triggerEvent = "";
 	public String triggerElement = "";
+	public String createdAt;
+	private URL parsedURL;
 
-	public DomdigRequest(int id,  String type, String method, String url, String headers, String data, String trigger) {
+	public DomdigRequest(int id,  String type, String method, String url, String headers, String data, String trigger, String createdAt) {
 		super();
 		this.id = id;
 		this.type = type;
@@ -25,6 +29,12 @@ public class DomdigRequest {
 		this.headers = headers;
 		this.data = data;
 		this.trigger = trigger.equals("") ? null : trigger;
+		this.createdAt = createdAt;
+		try {
+			this.parsedURL = new URL(this.url);
+		} catch (MalformedURLException e1) {
+			this.parsedURL = null;
+		}
 		
 		try {
 			JSONObject json = new JSONObject(trigger);
@@ -36,10 +46,12 @@ public class DomdigRequest {
 	}
 	
 	public String getRaw() throws MalformedURLException{
-		URL url = new URL(this.url);
-		String path = url.getFile();
-		String raw = this.method.toUpperCase() + " " + (path.equals("") ? "/" : path) + " HTTP/1.1\r\n";
-		raw += "host: " + url.getHost() + (url.getPort() != -1 ? ":" + url.getPort() : "") + "\r\n";
+		if(parsedURL == null) {
+			throw new MalformedURLException();
+		}
+		int port = parsedURL.getPort();
+		String raw = this.method.toUpperCase() + " " + getRelativeURL() + " HTTP/1.1\r\n";
+		raw += "host: " + parsedURL.getHost() + (port != -1 ? ":" + port : "") + "\r\n";
 		if(headers != null && !headers.equals("")) {
 			JSONObject json = new JSONObject(headers);
 			for(String k : json.keySet()) {
@@ -51,7 +63,38 @@ public class DomdigRequest {
 			raw += data;
 		}
 		return raw;
-		
 	}
 
+	public String getHost(){
+		if(parsedURL == null) {
+			return "";
+		}
+
+		return parsedURL.getHost();
+	}
+
+	public String getRelativeURL(){
+		if(parsedURL == null) {
+			return url;
+		}
+		String path = parsedURL.getFile();
+		return path.equals("") ? "/" : path;
+	}
+
+	public String getProtocol(){
+		if(parsedURL == null) {
+			return url;
+		}
+		return parsedURL.getProtocol();
+	}
+
+	public String getTime() {
+		SimpleDateFormat inFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat outFmt = new SimpleDateFormat("HH:mm:ss MM/dd/yyyy");
+		try {
+			return outFmt.format(inFmt.parse(createdAt));
+		} catch (ParseException e) {
+			return null;
+		}
+	}
 }
